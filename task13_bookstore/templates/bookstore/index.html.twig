@@ -1,0 +1,154 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Книжный магазин - Отчёты{% endblock %}
+
+{% block body %}
+<style>
+    body { background: #f5f5f5; color: #333; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+    .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .section h2 { color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #3498db; color: white; }
+    .badge { display: inline-block; padding: 5px 10px; border-radius: 5px; font-size: 0.9em; }
+    .badge-vip { background: #f39c12; color: white; }
+    .badge-regular { background: #95a5a6; color: white; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .stat-card { background: #ecf0f1; padding: 15px; border-radius: 8px; text-align: center; }
+    .stat-value { font-size: 2em; color: #2c3e50; font-weight: bold; }
+    .stat-label { color: #7f8c8d; font-size: 0.9em; }
+</style>
+
+<div class="container">
+    <h1>📚 Книжный магазин - Отчёты</h1>
+
+    {# 1. Клиенты с количеством заказов #}
+    <div class="section">
+        <h2>1️⃣ Клиенты и количество заказов</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Email</th>
+                    <th>Количество заказов</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customersWithOrderCount %}
+                <tr>
+                    <td>{{ customer.id }}</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td>{{ customer.orderCount }}</td>
+                    <td>
+                        {% if customer.orderCount >= 3 %}
+                            <span class="badge badge-vip">VIP клиент ⭐</span>
+                        {% elseif customer.orderCount > 0 %}
+                            <span class="badge badge-regular">Постоянный</span>
+                        {% else %}
+                            <span class="badge">Новый</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# 2. Все заказы #}
+    <div class="section">
+        <h2>2️⃣ Все заказы</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Заказ #</th>
+                    <th>Клиент</th>
+                    <th>Дата</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in ordersWithTotals %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.customerName }}</td>
+                    <td>{{ order.orderDate|date('d.m.Y H:i') }}</td>
+                    <td>{{ order.totalAmount }} ₽</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# 3. Топ-3 клиента #}
+    <div class="section">
+        <h2>3️⃣ Топ-3 клиента по сумме покупок</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Место</th>
+                    <th>Имя</th>
+                    <th>Email</th>
+                    <th>Потрачено</th>
+                    <th>Заказов</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in topCustomers %}
+                <tr>
+                    <td>
+                        {% if loop.index == 1 %}🥇
+                        {% elseif loop.index == 2 %}🥈
+                        {% elseif loop.index == 3 %}🥉
+                        {% endif %}
+                        {{ loop.index }}
+                    </td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td><strong>{{ customer.totalSpent }} ₽</strong></td>
+                    <td>{{ customer.orderCount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# 4. Статистика #}
+    <div class="section">
+        <h2>4️⃣ Статистика заказов</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ averageStats.avgAmount|number_format(2) }} ₽</div>
+                <div class="stat-label">Средний чек</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ averageStats.totalOrders }}</div>
+                <div class="stat-label">Всего заказов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ averageStats.minAmount }} ₽</div>
+                <div class="stat-label">Минимальный</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ averageStats.maxAmount }} ₽</div>
+                <div class="stat-label">Максимальный</div>
+            </div>
+        </div>
+    </div>
+
+    {# 5. Самая дорогая книга #}
+    <div class="section">
+        <h2>5️⃣ Самая дорогая книга</h2>
+        {% if mostExpensiveBook %}
+        <p style="font-size: 1.2em;">
+            📚 <strong>{{ mostExpensiveBook.title }}</strong> - 
+            <span style="color: #e74c3c; font-weight: bold;">{{ mostExpensiveBook.price }} ₽</span>
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

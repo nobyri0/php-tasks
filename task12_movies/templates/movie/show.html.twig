@@ -1,0 +1,144 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ movie.title }} - Кинопортал{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .back-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            border: 2px solid #667eea;
+        }
+        
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .movie-detail {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 40px;
+            margin-top: 30px;
+        }
+        
+        .movie-header {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .movie-poster-large {
+            width: 300px;
+            height: 450px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6em;
+            flex-shrink: 0;
+        }
+        
+        .movie-main-info {
+            flex: 1;
+        }
+        
+        .movie-title-large {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .info-row {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .info-label {
+            color: #667eea;
+            font-weight: bold;
+            min-width: 120px;
+        }
+        
+        .rating-large {
+            display: inline-block;
+            background: #ffd700;
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .movie-description {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #2a2a3e;
+        }
+        
+        .movie-description h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .movie-description p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #ccc;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <a href="{{ path('movie_index') }}" class="back-button">← Назад к списку фильмов</a>
+
+    <div class="movie-detail">
+        <div class="movie-header">
+            <div class="movie-poster-large">🎬</div>
+            <div class="movie-main-info">
+                <h2 class="movie-title-large">{{ movie.title }}</h2>
+                
+                <div class="info-row">
+                    <span class="info-label">Год выпуска:</span>
+                    <span>{{ movie.year }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Режиссёр:</span>
+                    <span>{{ movie.director }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Жанр:</span>
+                    <span>{{ movie.genre }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Длительность:</span>
+                    <span>{{ movie.duration }}</span>
+                </div>
+                
+                <span class="rating-large">⭐ {{ movie.rating }}/10</span>
+            </div>
+        </div>
+        
+        <div class="movie-description">
+            <h3>Описание</h3>
+            <p>{{ movie.description }}</p>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="Pizza Library">
+    <description>Coding standards for Pizza Library</description>
+    
+    <file>src</file>
+    
+    <arg name="colors"/>
+    <arg value="p"/>
+    
+    <rule ref="PSR12"/>
+</ruleset>

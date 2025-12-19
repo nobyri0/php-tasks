@@ -1,0 +1,305 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Мои заказы{% endblock %}
+
+{% block body %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .header {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .header-info h1 {
+        color: #667eea;
+        font-size: 2em;
+        margin-bottom: 5px;
+    }
+    
+    .header-info p {
+        color: #666;
+        font-size: 1.1em;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+    }
+    
+    .btn-logout {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .btn-logout:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+    }
+
+    .btn-admin {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-admin:hover {
+        background: #7f8c8d;
+        transform: translateY(-2px);
+    }
+    
+    .content {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .orders-title {
+        font-size: 1.8em;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    
+    .order-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .order-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+    
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .order-number {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #667eea;
+    }
+    
+    .order-date {
+        color: #666;
+        font-size: 0.95em;
+    }
+    
+    .order-dishes {
+        margin: 15px 0;
+    }
+    
+    .order-dishes h4 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .dish-item {
+        padding: 8px 0;
+        color: #555;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .dish-name {
+        flex: 1;
+    }
+    
+    .dish-price {
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    .order-total {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .status {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 600;
+    }
+    
+    .status-pending { 
+        background: #fff3cd; 
+        color: #856404; 
+    }
+    
+    .status-preparing { 
+        background: #cfe2ff; 
+        color: #084298; 
+    }
+    
+    .status-completed { 
+        background: #d1e7dd; 
+        color: #0f5132; 
+    }
+    
+    .status-cancelled { 
+        background: #f8d7da; 
+        color: #842029; 
+    }
+    
+    .no-orders {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+    
+    .no-orders-icon {
+        font-size: 4em;
+        margin-bottom: 20px;
+    }
+    
+    .no-orders h3 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+
+    .order-files {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .order-files h5 {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+
+    .file-badge {
+        display: inline-block;
+        background: #f0f4ff;
+        color: #667eea;
+        padding: 5px 12px;
+        border-radius: 5px;
+        font-size: 0.85em;
+        margin-right: 8px;
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="container">
+    <div class="header">
+        <div class="header-info">
+            <h1>👋 Здравствуйте, {{ client.name }}!</h1>
+            <p>📱 {{ client.phone }}</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ path('restaurant_index') }}" class="btn btn-admin">👨‍💼 Админка</a>
+            <a href="{{ path('app_logout') }}" class="btn btn-logout">🚪 Выйти</a>
+        </div>
+    </div>
+    
+    <div class="content">
+        <h2 class="orders-title">📋 Мои заказы</h2>
+        
+        {% if orders is empty %}
+            <div class="no-orders">
+                <div class="no-orders-icon">🍽️</div>
+                <h3>У вас пока нет заказов</h3>
+                <p>Когда администратор создаст заказ на ваше имя, он появится здесь</p>
+            </div>
+        {% else %}
+            {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-number">Заказ #{{ order.id }}</div>
+                            <div class="order-date">📅 {{ order.orderDate|date('d.m.Y H:i') }}</div>
+                        </div>
+                        <div>
+                            <span class="status status-{{ order.status }}">
+                                {% if order.status == 'pending' %}⏳ Ожидает
+                                {% elseif order.status == 'preparing' %}👨‍🍳 Готовится
+                                {% elseif order.status == 'completed' %}✅ Завершён
+                                {% elseif order.status == 'cancelled' %}❌ Отменён
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-dishes">
+                        <h4>🍕 Блюда:</h4>
+                        {% for dish in order.dishes %}
+                            <div class="dish-item">
+                                <span class="dish-name">{{ dish.name }}</span>
+                                <span class="dish-price">{{ dish.price }} ₽</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if order.files|length > 0 %}
+                        <div class="order-files">
+                            <h5>📎 Прикрепленные файлы:</h5>
+                            {% for file in order.files %}
+                                <span class="file-badge">📄 {{ file.originalName }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="order-footer">
+                        <div class="order-total">
+                            💰 Итого: {{ order.totalAmount }} ₽
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

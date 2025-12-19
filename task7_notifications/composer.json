@@ -1,0 +1,17 @@
+{
+    "name": "yourname/notifications",
+    "description": "Notification System",
+    "type": "library",
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Notifications\\": "src/"
+        }
+    }
+}

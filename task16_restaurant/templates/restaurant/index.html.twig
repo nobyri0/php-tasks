@@ -1,0 +1,773 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Управление рестораном{% endblock %}
+
+{% block body %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    h1 {
+        color: white;
+        text-align: center;
+        font-size: 2.5em;
+        margin-bottom: 30px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .tab-button {
+        padding: 15px 30px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+    
+    .tab-button:hover, .tab-button.active {
+        background: white;
+        color: #667eea;
+    }
+    
+    .tab-content {
+        display: none;
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+    }
+    
+    input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    button[type="submit"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    button[type="submit"]:hover {
+        transform: translateY(-2px);
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    th {
+        background: #f5f5f5;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    tr:hover {
+        background: #f9f9f9;
+    }
+    
+    .status {
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9em;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-preparing { background: #cfe2ff; color: #084298; }
+    .status-completed { background: #d1e7dd; color: #0f5132; }
+    .status-cancelled { background: #f8d7da; color: #842029; }
+    
+    .btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 5px;
+        transition: all 0.2s;
+    }
+    
+    .btn-edit {
+        background: #3498db;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: #2980b9;
+    }
+    
+    .btn-delete {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .btn-delete:hover {
+        background: #c0392b;
+    }
+    
+    .btn-status {
+        background: #f39c12;
+        color: white;
+    }
+    
+    .btn-status:hover {
+        background: #e67e22;
+    }
+
+    .btn-export {
+        background: #27ae60;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.2s;
+    }
+
+    .btn-export:hover {
+        background: #229954;
+        transform: translateY(-2px);
+    }
+    
+    .dish-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .dish-item {
+        padding: 10px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .dish-item:hover {
+        border-color: #667eea;
+        background: #f0f4ff;
+    }
+    
+    .dish-item input[type="checkbox"] {
+        width: auto;
+        margin-right: 8px;
+    }
+    
+    .category-header {
+        grid-column: 1/-1;
+        font-weight: bold;
+        margin-top: 10px;
+        color: #667eea;
+        padding: 5px 0;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal.active {
+        display: flex;
+    }
+    
+    .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .modal-close {
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        color: #999;
+        cursor: pointer;
+    }
+    
+    .modal-close:hover {
+        color: #333;
+    }
+
+    .dish-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .dish-image-placeholder {
+        width: 60px;
+        height: 60px;
+        background: #f0f0f0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-size: 24px;
+    }
+
+    .current-image-preview {
+        max-width: 200px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .file-list-item {
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .section-header h2 {
+        display: inline-block;
+        margin: 0;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(-100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+</style>
+
+<div class="container">
+    <h1>🍽️ Управление рестораном</h1>
+    
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">✅ {{ message }}</div>
+    {% endfor %}
+    
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-error">❌ {{ message }}</div>
+    {% endfor %}
+    
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab(event, 'orders')">📋 Заказы</button>
+        <button class="tab-button" onclick="openTab(event, 'clients')">👥 Клиенты</button>
+        <button class="tab-button" onclick="openTab(event, 'dishes')">🍕 Блюда</button>
+        <button class="tab-button" onclick="openTab(event, 'new-order')">➕ Новый заказ</button>
+    </div>
+    
+    {# Вкладка: Заказы #}
+    <div id="orders" class="tab-content active">
+        <div class="section-header">
+            <h2>Последние заказы</h2>
+            <a href="{{ path('restaurant_orders_export') }}" class="btn-export">
+                📥 Экспорт в Excel
+            </a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Клиент</th>
+                    <th>Телефон</th>
+                    <th>Дата</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Файлы</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.client.name }}</td>
+                    <td>{{ order.client.phone ?? 'не указан' }}</td>
+                    <td>{{ order.orderDate|date('d.m.Y H:i') }}</td>
+                    <td>{{ order.totalAmount }} ₽</td>
+                    <td><span class="status status-{{ order.status }}">{{ order.status }}</span></td>
+                    <td>
+                        <button class="btn btn-edit" onclick="showOrderFiles({{ order.id }})">
+                            📎 ({{ order.files|length }})
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-status" onclick="changeOrderStatus({{ order.id }}, '{{ order.status }}')">
+                            🔄 Статус
+                        </button>
+                        <form action="{{ path('restaurant_order_delete', {id: order.id}) }}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Удалить заказ #{{ order.id }}?')">
+                                🗑️
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: #999;">Заказов пока нет</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {# Вкладка: Клиенты #}
+    <div id="clients" class="tab-content">
+        <h2>Добавить клиента</h2>
+        <form action="{{ path('restaurant_client_add') }}" method="post">
+            <div class="form-group">
+                <label>Имя клиента *</label>
+                <input type="text" name="name" required placeholder="Иван Иванов">
+            </div>
+            <div class="form-group">
+                <label>Телефон</label>
+                <input type="text" name="phone" placeholder="+7-999-123-45-67">
+            </div>
+            <button type="submit">Добавить клиента</button>
+        </form>
+        
+        <h2 style="margin-top: 30px;">Список клиентов</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Телефон</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>{{ client.id }}</td>
+                    <td>{{ client.name }}</td>
+                    <td>{{ client.phone ?? '-' }}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editClient({{ client.id }}, '{{ client.name }}', '{{ client.phone ?? '' }}')">
+                            ✏️ Изменить
+                        </button>
+                        <form action="{{ path('restaurant_client_delete', {id: client.id}) }}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Удалить клиента {{ client.name }}?')">
+                                🗑️ Удалить
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #999;">Клиентов пока нет</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {# Вкладка: Блюда #}
+    <div id="dishes" class="tab-content">
+        <h2>Добавить блюдо</h2>
+        <form action="{{ path('restaurant_dish_add') }}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Название блюда *</label>
+                <input type="text" name="name" required placeholder="Борщ">
+            </div>
+            <div class="form-group">
+                <label>Цена *</label>
+                <input type="number" name="price" step="0.01" min="0.01" required placeholder="350.00">
+            </div>
+            <div class="form-group">
+                <label>Категория</label>
+                <input type="text" name="category" placeholder="Супы, Основные блюда, Десерты...">
+            </div>
+            <div class="form-group">
+                <label>Фото блюда (JPG, PNG)</label>
+                <input type="file" name="image" accept="image/jpeg,image/png">
+            </div>
+            <button type="submit">Добавить блюдо</button>
+        </form>
+        
+        <h2 style="margin-top: 30px;">Меню</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Фото</th>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Цена</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dish in dishes %}
+                <tr>
+                    <td>
+                        {% if dish.imagePath %}
+                            <img src="/uploads/dishes/{{ dish.imagePath }}" alt="{{ dish.name }}" class="dish-image">
+                        {% else %}
+                            <div class="dish-image-placeholder">📷</div>
+                        {% endif %}
+                    </td>
+                    <td>{{ dish.id }}</td>
+                    <td>{{ dish.name }}</td>
+                    <td>{{ dish.category ?? '-' }}</td>
+                    <td>{{ dish.price }} ₽</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editDish({{ dish.id }}, '{{ dish.name }}', '{{ dish.price }}', '{{ dish.category ?? '' }}', '{{ dish.imagePath ?? '' }}')">
+                            ✏️ Изменить
+                        </button>
+                        <form action="{{ path('restaurant_dish_delete', {id: dish.id}) }}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Удалить блюдо {{ dish.name }}?')">
+                                🗑️ Удалить
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #999;">Блюд пока нет</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {# Вкладка: Новый заказ #}
+    <div id="new-order" class="tab-content">
+        <h2>Создать новый заказ</h2>
+        <form action="{{ path('restaurant_order_add') }}" method="post">
+            <div class="form-group">
+                <label>Выберите клиента *</label>
+                <select name="client_id" required>
+                    <option value="">-- Выберите клиента --</option>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}">
+                        {{ client.name }} {% if client.phone %}({{ client.phone }}){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Выберите блюда * (минимум 1)</label>
+                <div class="dish-selector">
+                    {% set currentCategory = '' %}
+                    {% for dish in dishes %}
+                        {% if dish.category != currentCategory %}
+                            {% set currentCategory = dish.category %}
+                            <div class="category-header">{{ currentCategory ?? 'Без категории' }}</div>
+                        {% endif %}
+                        <label class="dish-item">
+                            <input type="checkbox" name="dish_ids[]" value="{{ dish.id }}">
+                            {{ dish.name }}<br>
+                            <small style="color: #667eea; font-weight: bold;">{{ dish.price }} ₽</small>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <button type="submit">Создать заказ</button>
+        </form>
+    </div>
+</div>
+
+{# Модальное окно для редактирования клиента #}
+<div id="editClientModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeModal('editClientModal')">&times;</span>
+        <h2 class="modal-header">Редактировать клиента</h2>
+        <form id="editClientForm" method="post">
+            <div class="form-group">
+                <label>Имя *</label>
+                <input type="text" id="editClientName" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Телефон</label>
+                <input type="text" id="editClientPhone" name="phone">
+            </div>
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+{# Модальное окно для редактирования блюда #}
+<div id="editDishModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeModal('editDishModal')">&times;</span>
+        <h2 class="modal-header">Редактировать блюдо</h2>
+        <form id="editDishForm" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Название *</label>
+                <input type="text" id="editDishName" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Цена *</label>
+                <input type="number" id="editDishPrice" name="price" step="0.01" min="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Категория</label>
+                <input type="text" id="editDishCategory" name="category">
+            </div>
+            <div class="form-group" id="currentImageBlock" style="display: none;">
+                <label>Текущее фото:</label>
+                <div>
+                    <img id="currentDishImage" src="" alt="Текущее фото" class="current-image-preview">
+                </div>
+                <label style="margin-top: 10px; display: block;">
+                    <input type="checkbox" name="delete_image" value="1" style="width: auto; display: inline;"> Удалить текущее фото
+                </label>
+            </div>
+            <div class="form-group">
+                <label>Загрузить новое фото (JPG, PNG)</label>
+                <input type="file" name="image" accept="image/jpeg,image/png">
+            </div>
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+{# Модальное окно для изменения статуса заказа #}
+<div id="orderStatusModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeModal('orderStatusModal')">&times;</span>
+        <h2 class="modal-header">Изменить статус заказа</h2>
+        <form id="orderStatusForm" method="post">
+            <div class="form-group">
+                <label>Статус</label>
+                <select id="orderStatusSelect" name="status" required>
+                    <option value="pending">Ожидает</option>
+                    <option value="preparing">Готовится</option>
+                    <option value="completed">Завершён</option>
+                    <option value="cancelled">Отменён</option>
+                </select>
+            </div>
+            <button type="submit">Изменить статус</button>
+        </form>
+    </div>
+</div>
+
+{# Модальное окно для файлов заказа #}
+<div id="orderFilesModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <span class="modal-close" onclick="closeModal('orderFilesModal')">&times;</span>
+        <h2 class="modal-header">Файлы заказа #<span id="orderFilesOrderId"></span></h2>
+        
+        <h3>Загрузить файл</h3>
+        <form id="orderFilesUploadForm" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Выберите файл (PDF, DOCX, TXT, JPG, PNG, макс 5MB)</label>
+                <input type="file" name="file" required accept=".pdf,.docx,.txt,.jpg,.jpeg,.png">
+            </div>
+            <button type="submit">Загрузить</button>
+        </form>
+        
+        <h3 style="margin-top: 30px;">Прикрепленные файлы</h3>
+        <div id="orderFilesList"></div>
+    </div>
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var tabContents = document.getElementsByClassName('tab-content');
+        for (var i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove('active');
+        }
+        
+        var tabButtons = document.getElementsByClassName('tab-button');
+        for (var i = 0; i < tabButtons.length; i++) {
+            tabButtons[i].classList.remove('active');
+        }
+        
+        document.getElementById(tabName).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+    
+    function editClient(id, name, phone) {
+        document.getElementById('editClientName').value = name;
+        document.getElementById('editClientPhone').value = phone;
+        document.getElementById('editClientForm').action = '/restaurant/client/edit/' + id;
+        document.getElementById('editClientModal').classList.add('active');
+    }
+    
+    function editDish(id, name, price, category, imagePath) {
+        document.getElementById('editDishName').value = name;
+        document.getElementById('editDishPrice').value = price;
+        document.getElementById('editDishCategory').value = category;
+        document.getElementById('editDishForm').action = '/restaurant/dish/edit/' + id;
+        
+        // Показываем блок с текущим изображением, если оно есть
+        if (imagePath) {
+            document.getElementById('currentImageBlock').style.display = 'block';
+            document.getElementById('currentDishImage').src = '/uploads/dishes/' + imagePath;
+        } else {
+            document.getElementById('currentImageBlock').style.display = 'none';
+        }
+        
+        document.getElementById('editDishModal').classList.add('active');
+    }
+    
+    function changeOrderStatus(id, currentStatus) {
+        document.getElementById('orderStatusSelect').value = currentStatus;
+        document.getElementById('orderStatusForm').action = '/restaurant/order/status/' + id;
+        document.getElementById('orderStatusModal').classList.add('active');
+    }
+
+    function showOrderFiles(orderId) {
+        document.getElementById('orderFilesOrderId').textContent = orderId;
+        document.getElementById('orderFilesUploadForm').action = '/restaurant/order/' + orderId + '/upload';
+        
+        // Загружаем список файлов через AJAX
+        fetch('/restaurant/order/' + orderId + '/files')
+            .then(response => response.json())
+            .then(files => {
+                let html = '';
+                if (files.length === 0) {
+                    html = '<p style="color: #999; text-align: center; padding: 20px;">Файлов нет</p>';
+                } else {
+                    files.forEach(file => {
+                        html += `
+                            <div class="file-list-item">
+                                <div>
+                                    <strong>${file.originalName}</strong><br>
+                                    <small>${(file.fileSize / 1024).toFixed(2)} KB | ${file.uploadedAt}</small>
+                                </div>
+                                <div>
+                                    <a href="/restaurant/order/file/${file.id}/download" class="btn btn-edit" style="text-decoration: none;">📥</a>
+                                    <form action="/restaurant/order/file/${file.id}/delete" method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-delete" onclick="return confirm('Удалить файл?')">🗑️</button>
+                                    </form>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                document.getElementById('orderFilesList').innerHTML = html;
+            })
+            .catch(error => {
+                document.getElementById('orderFilesList').innerHTML = '<p style="color: red;">Ошибка загрузки списка файлов</p>';
+            });
+        
+        document.getElementById('orderFilesModal').classList.add('active');
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.classList.remove('active');
+        }
+    }
+</script>
+{% endblock %}

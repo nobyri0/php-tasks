@@ -1,0 +1,174 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Вход{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .auth-container {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        width: 100%;
+        max-width: 450px;
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .auth-header h1 {
+        color: #667eea;
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+    
+    .auth-header p {
+        color: #666;
+        font-size: 0.95em;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+    }
+    
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+    }
+    
+    .auth-footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .admin-link {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .admin-link a {
+        color: #999;
+        text-decoration: none;
+        font-size: 0.9em;
+    }
+
+    .admin-link a:hover {
+        color: #667eea;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-header">
+        <h1>🍽️ Вход</h1>
+        <p>Войдите в свой аккаунт</p>
+    </div>
+    
+    {% if error %}
+        <div class="alert alert-error">❌ Неверный номер телефона или пароль</div>
+    {% endif %}
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">✅ {{ message }}</div>
+    {% endfor %}
+    
+    <form method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        
+        <div class="form-group">
+            <label>Номер телефона</label>
+            <input type="text" name="_username" required placeholder="+7-999-123-45-67" value="{{ last_username }}">
+        </div>
+        
+        <div class="form-group">
+            <label>Пароль</label>
+            <input type="password" name="_password" required placeholder="Введите пароль">
+        </div>
+        
+        <button type="submit" class="btn-submit">Войти</button>
+    </form>
+    
+    <div class="auth-footer">
+        Нет аккаунта? <a href="{{ path('client_register') }}">Зарегистрироваться</a>
+    </div>
+
+    <div class="admin-link">
+        <a href="{{ path('restaurant_index') }}">👨‍💼 Административная панель</a>
+    </div>
+</div>
+{% endblock %}

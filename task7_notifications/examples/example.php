@@ -1,0 +1,21 @@
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use Notifications\EmailNotification;
+use Notifications\SMSNotification;
+echo "=== Система уведомлений ===\n\n";
+$emailNotification = new EmailNotification('user@example.com');
+$smsNotification = new SMSNotification('+7-999-123-45-67');
+echo "Email - Статус до отправки: " . $emailNotification->getStatus() . "\n";
+echo "SMS - Статус до отправки: " . $smsNotification->getStatus() . "\n\n";
+echo str_repeat("=", 50) . "\n\n";
+echo "Отправка Email уведомления:\n";
+echo $emailNotification->send("Добро пожаловать на наш сайт!") . "\n";
+echo "Тип: " . $emailNotification->getType() . "\n";
+echo "Статус после отправки: " . $emailNotification->getStatus() . "\n";
+echo "Время отправки: " . date('Y-m-d H:i:s', $emailNotification->getTimestamp()) . "\n\n";
+echo str_repeat("=", 50) . "\n\n";
+echo "Отправка SMS уведомления:\n";
+echo $smsNotification->send("Ваш код подтверждения: 1234") . "\n";
+echo "Тип: " . $smsNotification->getType() . "\n";
+echo "Статус после отправки: " . $smsNotification->getStatus() . "\n";
+echo "Время отправки: " . date('Y-m-d H:i:s', $smsNotification->getTimestamp()) . "\n";
